@@ -24,6 +24,7 @@ public class BreakOnCount implements Icommande{
             if (targetClass.name().equals(className)) {
                 Location location = targetClass.locationsOfLine(lineNumber).get(0);
                 BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
+                bpReq.addCountFilter(count);
                 bpReq.enable();
                 System.out.println("Breakpoint ajouté à " + className + ":" + lineNumber + " (compteur: " + count + ")");
             }

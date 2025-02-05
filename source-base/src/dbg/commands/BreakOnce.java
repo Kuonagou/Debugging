@@ -23,7 +23,7 @@ public class BreakOnce implements Icommande{
             if (targetClass.name().equals(className)) {
                 Location location = targetClass.locationsOfLine(lineNumber).get(0);
                 BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(location);
-                bpReq.setSuspendPolicy(EventRequest.SUSPEND_ALL);
+                bpReq.addCountFilter(1);
                 bpReq.enable();
                 System.out.println("Breakpoint temporaire ajouté à " + className + ":" + lineNumber);
             }
