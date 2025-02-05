@@ -78,7 +78,7 @@ public class ScriptableDebugger {
                 }
                 if(event instanceof ClassPrepareEvent) { // break point à l'instanciation
                     setBreakPoint(debugClass.getName() , 6 ) ;
-                    setBreakPoint(debugClass.getName() , 9 ) ;
+                    setBreakPoint(debugClass.getName() , (25) ) ;
                 }
                 if(event instanceof BreakpointEvent | event instanceof StepEvent) {
                     readInput((LocatableEvent) event);
