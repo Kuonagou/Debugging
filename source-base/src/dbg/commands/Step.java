@@ -8,7 +8,7 @@ import com.sun.jdi.request.StepRequest;
 public class Step implements Icommande {
     @Override
     public void execute(VirtualMachine vm, LocatableEvent event) {
-        if (event instanceof StepEvent) {
+      if (event instanceof StepEvent) {
             event.request().disable();
         }
         StepRequest stepRequest = vm.eventRequestManager().createStepRequest(event.thread(),

@@ -23,8 +23,7 @@ public class ScriptableDebugger {
 
     private Class debugClass;
     private VirtualMachine vm;
-    //private Icommande commande;
-    private CommandManager commandManager;
+    private CommandManager commandManager = new CommandManager();
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -40,17 +39,15 @@ public class ScriptableDebugger {
             vm = connectAndLaunchVM();
             enableClassPrepareRequest(vm);
             startDebugger();
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalConnectorArgumentsException e) {
             e.printStackTrace();
         } catch (VMStartException e) {
             e.printStackTrace();
-            System.out.println(e.toString());
+            System.out.println(e);
         } catch (VMDisconnectedException e) {
-            System.out.println("Virtual Machine is disconnected: " + e.toString());
+            System.out.println("Virtual Machine is disconnected: " + e);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -80,29 +77,15 @@ public class ScriptableDebugger {
                     }
                 }
                 if(event instanceof ClassPrepareEvent) { // break point à l'instanciation
-                    setBreakPoint(debugClass. getName() , 6 ) ;
+                    setBreakPoint(debugClass.getName() , 6 ) ;
+                    setBreakPoint(debugClass.getName() , 9 ) ;
                 }
-                if(event instanceof BreakpointEvent) {
-                    enableStepRequest((BreakpointEvent) event);
-                    readInput((BreakpointEvent) event);
-                }
-                if(event instanceof StepEvent){
-                    readInput((StepEvent) event);
-                }
-                if(event instanceof LocatableEvent){
+                if(event instanceof BreakpointEvent | event instanceof StepEvent) {
                     readInput((LocatableEvent) event);
-                }else{
-                    vm.resume();
                 }
+                vm.resume();
             }
         }
-    }
-
-    private void enableStepRequest(LocatableEvent event) {
-        StepRequest stepRequest = vm.eventRequestManager().createStepRequest(event.thread(),
-                    StepRequest.STEP_MIN,
-                    StepRequest.STEP_OVER);
-        stepRequest.disable();
     }
 
     private void setBreakPoint(String className, int lineNumber) throws AbsentInformationException {
@@ -117,14 +100,14 @@ public class ScriptableDebugger {
 
     private void readInput(LocatableEvent event) throws Exception {
         try {
+            boolean reconnue = false;
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Entrez une commande > ");
-            String command = reader.readLine();
-            commandManager.executeCommand(vm, event, command);
-            /*if(command.equals("step")) {
-                commande = new Step();
-                commande.execute(this.vm,event);
-            }*/
+            while(!reconnue){
+                System.out.print("Entrez une commande > ");
+                String command = reader.readLine();
+               reconnue =  commandManager.executeCommand(vm, event, command);
+            }
+
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

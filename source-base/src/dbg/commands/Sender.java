@@ -1,6 +1,7 @@
 package dbg.commands;
 
 import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.LocatableEvent;
@@ -12,7 +13,11 @@ public class Sender implements Icommande{
     public void execute(VirtualMachine vm, LocatableEvent event) throws IncompatibleThreadStateException {
         List<StackFrame> frames = event.thread().frames();
         if (frames.size() > 1) {
-            System.out.println("Sender: " + frames.get(1).thisObject());
+            StackFrame callerFrame = frames.get(1);
+            ObjectReference sender = callerFrame.thisObject();
+            System.out.println("Sender: " + sender);
+        } else {
+            System.out.println("Sender n'existe pas");
         }
     }
 }

@@ -9,6 +9,6 @@ public class Method implements Icommande{
     @Override
     public void execute(VirtualMachine vm, LocatableEvent event) throws IncompatibleThreadStateException {
         StackFrame frame = event.thread().frame(0);
-        System.out.println(frame.location().method());
+        System.out.println("Method : " +frame.location().method());
     }
 }

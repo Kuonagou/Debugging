@@ -12,6 +12,7 @@ public class Frame implements Icommande{
     @Override
     public void execute(VirtualMachine vm, LocatableEvent event) throws IncompatibleThreadStateException {
             StackFrame frame = event.thread().frame(0);
-            System.out.println("Frame en cours : "+ frame);
+        System.out.println("Current frame: " + frame.location().method() +
+                " at line " + frame.location().lineNumber());
     }
 }

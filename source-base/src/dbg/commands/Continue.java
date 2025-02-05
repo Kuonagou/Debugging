@@ -11,6 +11,6 @@ public class Continue implements Icommande {
      */
     @Override
     public void execute(VirtualMachine vm, LocatableEvent event) {
-        vm.resume();
+       event.request().disable();
     }
 }

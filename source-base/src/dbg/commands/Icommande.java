@@ -9,5 +9,5 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 public interface Icommande {
-    public void execute(VirtualMachine vm, LocatableEvent event) throws IncompatibleThreadStateException, AbsentInformationException;
+    public void execute(VirtualMachine vm, LocatableEvent event) throws Exception,IncompatibleThreadStateException, AbsentInformationException;
 }

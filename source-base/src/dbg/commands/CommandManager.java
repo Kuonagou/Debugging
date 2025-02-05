@@ -18,7 +18,7 @@ public class CommandManager {
     public CommandManager() {}
 
 
-    public void executeCommand(VirtualMachine vm, LocatableEvent event, String command) throws IOException, IncompatibleThreadStateException, AbsentInformationException {
+    public boolean executeCommand(VirtualMachine vm, LocatableEvent event, String command) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 
@@ -26,65 +26,65 @@ public class CommandManager {
             case "step":
                 commande = new Step();
                 commande.execute(vm,event);
-                break;
+                return true;
             case "step over":
                 commande = new StepOver();
                 commande.execute(vm,event);
-                break;
+                return true;
             case "continue":
                 commande = new Continue();
                 commande.execute(vm,event);
-                break;
+                return true;
             case "frame":
                 commande = new Frame();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "temporaries":
                 commande = new Temporaries();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "stack":
                 commande = new Stack();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "receiver":
                 commande = new Receiver();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "sender":
                 commande = new Sender();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "receiver variables":
                 commande = new ReceiverVariables();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "method":
                 commande = new Method();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "arguments":
                 commande = new Arguments();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "print var":
                 System.out.print("Entrez le nom de du fichier > ");
                 String name = reader.readLine();
                 commande = new PrintVar(name);
                 commande.execute(vm,event);
-                break;
+                return false;
             case "break":
-                System.out.print("Entrez le nom de la variable > ");
+                System.out.print("Entrez le nom de la classe > ");
                 String fileName1 = reader.readLine();
                 System.out.print("Entrez le numero de la ligne > ");
                 String lineNumber1 = reader.readLine();
                 commande = new Break(fileName1, Integer.parseInt(lineNumber1));
                 commande.execute(vm,event);
-                break;
+                return false;
             case "break point":
                 commande = new BreakPoints();
                 commande.execute(vm,event);
-                break;
+                return false;
             case "break once":
                 System.out.print("Entrez le nom de la variable > ");
                 String fileName2 = reader.readLine();
@@ -92,7 +92,7 @@ public class CommandManager {
                 String lineNumber2 = reader.readLine();
                 commande = new BreakOnce(fileName2, Integer.parseInt(lineNumber2));
                 commande.execute(vm,event);
-                break;
+                return false;
             case "break on count":
                 System.out.print("Entrez le nom de la variable > ");
                 String fileName3 = reader.readLine();
@@ -102,16 +102,15 @@ public class CommandManager {
                 String count = reader.readLine();
                 commande = new BreakOnCount(fileName3, Integer.parseInt(lineNumber3), Integer.parseInt(count));
                 commande.execute(vm,event);
-                break;
+                return false;
             case "break before method call":
                 System.out.print("Entrez le nom de la methode > ");
                 String methodName = reader.readLine();
                 commande = new BreakBeforeMethodCall(methodName);
                 commande.execute(vm,event);
-                break;
+                return false;
             default:
-                vm.resume();
-                break;
+                return false;
         }
     }
 }
