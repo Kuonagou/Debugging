@@ -68,13 +68,13 @@ public class CommandManager {
                 commande.execute(vm,event);
                 return false;
             case "print var":
-                System.out.print("Entrez le nom de du fichier > ");
+                System.out.print("Entrez le nom de de la variable > ");
                 String name = reader.readLine();
                 commande = new PrintVar(name);
                 commande.execute(vm,event);
                 return false;
             case "break":
-                System.out.print("Entrez le nom de la classe > ");
+                System.out.print("Entrez le nom du fichier > ");
                 String fileName1 = reader.readLine();
                 System.out.print("Entrez le numero de la ligne > ");
                 String lineNumber1 = reader.readLine();
@@ -86,7 +86,7 @@ public class CommandManager {
                 commande.execute(vm,event);
                 return false;
             case "break once":
-                System.out.print("Entrez le nom de la variable > ");
+                System.out.print("Entrez le nom du fichier > ");
                 String fileName2 = reader.readLine();
                 System.out.print("Entrez le numero de la ligne > ");
                 String lineNumber2 = reader.readLine();
@@ -94,7 +94,7 @@ public class CommandManager {
                 commande.execute(vm,event);
                 return false;
             case "break on count":
-                System.out.print("Entrez le nom de la variable > ");
+                System.out.print("Entrez le nom du fichier > ");
                 String fileName3 = reader.readLine();
                 System.out.print("Entrez le numero de la ligne > ");
                 String lineNumber3 = reader.readLine();
@@ -104,7 +104,7 @@ public class CommandManager {
                 commande.execute(vm,event);
                 return false;
             case "break before method call":
-                System.out.print("Entrez le nom de la methode > ");
+                System.out.print("Entrez le nom de la méthode > ");
                 String methodName = reader.readLine();
                 commande = new BreakBeforeMethodCall(methodName);
                 commande.execute(vm,event);

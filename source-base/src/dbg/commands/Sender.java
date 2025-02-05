@@ -14,8 +14,12 @@ public class Sender implements Icommande{
         List<StackFrame> frames = event.thread().frames();
         if (frames.size() > 1) {
             StackFrame callerFrame = frames.get(1);
-            ObjectReference sender = callerFrame.thisObject();
-            System.out.println("Sender: " + sender);
+            if (callerFrame.location().method().isStatic()) {
+                System.out.println("La méthode appelante est statique, donc pas de sender.");
+            } else {
+                ObjectReference sender = callerFrame.thisObject();
+                System.out.println("Sender: " + sender);
+            }
         } else {
             System.out.println("Sender n'existe pas");
         }
