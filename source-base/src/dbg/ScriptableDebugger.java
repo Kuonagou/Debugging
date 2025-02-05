@@ -9,6 +9,7 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
+import dbg.commands.CommandManager;
 import dbg.commands.Icommande;
 import dbg.commands.Step;
 
@@ -22,7 +23,8 @@ public class ScriptableDebugger {
 
     private Class debugClass;
     private VirtualMachine vm;
-    private Icommande commande;
+    //private Icommande commande;
+    private CommandManager commandManager;
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -87,7 +89,11 @@ public class ScriptableDebugger {
                 if(event instanceof StepEvent){
                     readInput((StepEvent) event);
                 }
-                vm.resume();
+                if(event instanceof LocatableEvent){
+                    readInput((LocatableEvent) event);
+                }else{
+                    vm.resume();
+                }
             }
         }
     }
@@ -114,10 +120,11 @@ public class ScriptableDebugger {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             System.out.print("Entrez une commande > ");
             String command = reader.readLine();
-            if(command.equals("step")) {
+            commandManager.executeCommand(vm, event, command);
+            /*if(command.equals("step")) {
                 commande = new Step();
                 commande.execute(this.vm,event);
-            }
+            }*/
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
