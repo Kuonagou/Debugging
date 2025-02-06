@@ -17,13 +17,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class ScriptableDebugger {
 
     private Class debugClass;
     private VirtualMachine vm;
     private CommandManager commandManager = new CommandManager();
+    private List<StackFrame> executionHistory = new ArrayList<>();
+    private int PC = 0;
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
