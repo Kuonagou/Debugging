@@ -11,24 +11,26 @@ import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
 import dbg.commands.CommandManager;
 import dbg.commands.Icommande;
-import dbg.commands.Step;
+import dbg.commands.StepBack;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class ScriptableDebugger {
 
+    private Icommande commande;
     private Class debugClass;
     private VirtualMachine vm;
     private CommandManager commandManager = new CommandManager();
     private List<StackFrame> executionHistory = new ArrayList<>();
-    private int PC = 0;
+
+    // Track all executed lines
+    private List<Integer> executedLines = new ArrayList<>();
+    private Location currentLocation;
+    private Integer tour = 0;
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
         LaunchingConnector launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -38,24 +40,35 @@ public class ScriptableDebugger {
         return vm;
     }
     public void attachTo(Class debuggeeClass) {
-
         this.debugClass = debuggeeClass;
-        try {
-            vm = connectAndLaunchVM();
-            enableClassPrepareRequest(vm);
-            startDebugger();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalConnectorArgumentsException e) {
-            e.printStackTrace();
-        } catch (VMStartException e) {
-            e.printStackTrace();
-            System.out.println(e);
-        } catch (VMDisconnectedException e) {
-            System.out.println("Virtual Machine is disconnected: " + e);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        int maxRetries = 1;
+
+        for (int retry = 0; retry < maxRetries; retry++) {
+            try {
+                vm = connectAndLaunchVM();
+                enableClassPrepareRequest(vm);
+                startDebugger();
+                break; // Success, exit retry loop
+            } catch (VMDisconnectedException e) {
+                System.out.println("VM Disconnected. Attempt " + (retry + 1) + " of " + maxRetries);
+
+                if (retry == maxRetries - 1) {
+                    System.out.println("Failed to reconnect after " + maxRetries + " attempts");
+                    e.printStackTrace();
+                    break;
+                }
+
+                // Optional: Add a small delay before retrying
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                break;
+            }
         }
     }
 
@@ -65,8 +78,8 @@ public class ScriptableDebugger {
         classPrepareRequest.enable();
     }
 
-    public void startDebugger() throws Exception {
-        EventSet eventSet = null;
+    private void startDebugger() throws Exception {
+        EventSet eventSet;
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
                 System.out.println(event.toString());
@@ -83,11 +96,31 @@ public class ScriptableDebugger {
                 }
                 if(event instanceof ClassPrepareEvent) { // break point à l'instanciation
                     setBreakPoint(debugClass.getName() , 6 ) ;
-                    setBreakPoint(debugClass.getName() , (25) ) ;
+                    setBreakPoint(debugClass.getName() , (17) ) ;
                 }
-                if(event instanceof BreakpointEvent | event instanceof StepEvent) {
-                    readInput((LocatableEvent) event);
+
+                if ( event instanceof BreakpointEvent) {
+
+                    commandManager.executeCommand(vm, (BreakpointEvent) event, "step over");
+                    //readInput((LocatableEvent) event);
                 }
+                if (event instanceof StepEvent) {
+                    LocatableEvent stepEvent = (LocatableEvent) event;
+                    Location location = stepEvent.location();
+
+                    // Track the current line
+                    if (location.method().declaringType().name().equals(debugClass.getName())) {
+                        int lineNumber = location.lineNumber();
+                        if (lineNumber > 0) {
+                            executedLines.add(lineNumber);
+                            currentLocation = location;
+                            System.out.println("Executed line: " + lineNumber);
+                        }
+                    }
+                    commandManager.executeCommand(vm, (StepEvent) event, "step over");
+                    //readInput((LocatableEvent) event);
+                }
+
                 vm.resume();
             }
         }
@@ -110,7 +143,13 @@ public class ScriptableDebugger {
             while(!reconnue){
                 System.out.print("Entrez une commande > ");
                 String command = reader.readLine();
-               reconnue =  commandManager.executeCommand(vm, event, command);
+                if(!command.equals("step back")){
+                    reconnue =  commandManager.executeCommand(vm, event, command);
+                }else {
+                    commande = new StepBack();
+                    commande.execute(vm,event);
+                }
+
             }
 
         } catch (Exception e) {

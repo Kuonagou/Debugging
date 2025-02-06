@@ -31,10 +31,6 @@ public class CommandManager {
                 commande = new StepOver();
                 commande.execute(vm,event);
                 return true;
-            case "step back":
-                commande = new StepBack();
-                commande.execute(vm,event);
-                return true;
             case "continue":
                 commande = new Continue();
                 commande.execute(vm,event);
