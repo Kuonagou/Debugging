@@ -15,7 +15,22 @@ Ces commandes sont gérées par le CommandeManager. Il permet de rediriger le de
 * **Main** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
 * **IHM** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
 * **Step_back** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
+
 ## Desciption fonctionnement step back 
+
+Pour mettre en place le step back nosu avons choisit de sauvegarder les points d'arrêt déjà présent (saveBreakpoints()) et relancer l'execution du programme avec la vm.
+Afin de revenir à l'instruction précedante on installe un break point sur la ligne précédante à l'instruction, pour revenir à une execution similaire et que le relancement de l'execution passe inapercu pour l'utilisateur tout les breakpoints existant sont installé actif ou inactif en fonction de leur place avant ou après le point d'arret du step back.
+Ceci est réaliser en trois étapes:  
+* Sauvegarde de l'état avant d'exécuter "step back"
+  * saveBreakPoints enregistre les lignes des points d'arrêt actifs. 
+  * saveActionStep garde une trace des lignes déjà exécutées.
+* Lorsqu'on demande un retour en arrière (step back)
+  * Vérifie si PC > 1, puis supprime la dernière ligne exécutée de saveActionStep. 
+  * Remet askForStepBack à vrai pour signaler la nécessité de restaurer les breakpoints. 
+  * Redémarre la VM et remet les breakpoints sauvegardés.
+* Lors du rechargement du programme 
+  * ClassPrepareEvent recharge la classe. 
+  * Si askForStepBack est actif, les breakpoints sont replacés.
 
 ## Utilisation des commandes 
 Liste des commandes possible à taper dans le terminal :
