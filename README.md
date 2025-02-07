@@ -12,7 +12,7 @@ Ces commandes sont gérées par le CommandeManager. Il permet de rediriger le de
 
 ## Branches Git
 
-* **Main** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
+* **Main** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger" (version sans le step back du premier tp).
 * **IHM** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
 * **Step_back** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
 
