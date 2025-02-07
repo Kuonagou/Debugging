@@ -7,6 +7,8 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.LocatableEvent;
 import com.sun.jdi.request.BreakpointRequest;
 
+import java.util.NoSuchElementException;
+
 public class Break implements Icommande{
     private String className;
     private int lineNumber;
@@ -22,12 +24,16 @@ public class Break implements Icommande{
      */
     @Override
     public void execute(VirtualMachine vm, LocatableEvent event) throws AbsentInformationException {
-        for( ReferenceType targetClass : vm.allClasses()) {
-            if(targetClass.name().equals(className)){
-                Location location = targetClass.locationsOfLine(lineNumber).get(0) ;
-                BreakpointRequest bpReq = vm. eventRequestManager().createBreakpointRequest(location);
-                bpReq.enable();
+        try{
+            for( ReferenceType targetClass : vm.allClasses()) {
+                if(targetClass.name().equals(className)){
+                    Location location = targetClass.locationsOfLine(lineNumber).getFirst() ;
+                    BreakpointRequest bpReq = vm. eventRequestManager().createBreakpointRequest(location);
+                    bpReq.enable();
+                }
             }
+        } catch(NoSuchElementException e){
+            System.out.println("Pas de de code à cette ligne");
         }
     }
 }
