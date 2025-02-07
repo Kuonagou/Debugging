@@ -26,8 +26,9 @@ public class ScriptableDebugger {
     private VirtualMachine vm;
     private CommandManager commandManager = new CommandManager();
     private boolean askForStepBack = false;
-    private int stepBack ;
     private List<Integer> saveBreakPoints;
+    private List<Integer> saveActionStep = new ArrayList<>();
+    private int PC;
 
 
     public VirtualMachine connectAndLaunchVM() throws IOException, IllegalConnectorArgumentsException, VMStartException {
@@ -69,7 +70,6 @@ public class ScriptableDebugger {
         EventSet eventSet = null;
         while ((eventSet = vm.eventQueue().remove()) != null) {
             for (Event event : eventSet) {
-                System.out.println(event.toString());
                 if (event instanceof VMDisconnectEvent ) {
                     System.out.println("End of program");
                     InputStreamReader reader = new InputStreamReader(vm.process().getInputStream());
@@ -83,21 +83,18 @@ public class ScriptableDebugger {
                 }
                 if(event instanceof ClassPrepareEvent) {
                     if(askForStepBack){
-                        System.out.println("J'ajoute mon breakpoint ligne "+stepBack);
-                        setBreakPoint(debugClass.getName(),stepBack,true);
+                        setBreakPoint(debugClass.getName(),saveActionStep.getLast(),true);
                         for (Integer line : saveBreakPoints){
-                            System.out.println(line);
-                            setBreakPoint(debugClass.getName(),line,line > stepBack);
-                            System.out.println(line);
-
+                            setBreakPoint(debugClass.getName(),line,!saveActionStep.contains(line));
                         }
                     }else{
-                        setBreakPoint(debugClass.getName() , 6,true ) ;
+                        setBreakPoint(debugClass.getName() , 31,true ) ;
                         setBreakPoint(debugClass.getName() , 25 ,true) ;
                     }
 
                 }
                 if(event instanceof BreakpointEvent | event instanceof StepEvent) {
+                    System.out.println(event);
                     readInput((LocatableEvent) event);
                 }
                 vm.resume();
@@ -123,24 +120,41 @@ public class ScriptableDebugger {
     private void readInput(LocatableEvent event) throws Exception {
         try {
             int ligneActuelle = event.location().lineNumber();
-            System.out.println("Ligne de l'event "+ligneActuelle);
             boolean reconnue = false;
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             while(!reconnue){
                 System.out.print("Entrez une commande > ");
                 String command = reader.readLine();
-
                 if(command.equals("step back")){
-                    stepBack = ligneActuelle - 1;
-                    System.out.println("step back"+stepBack);
-                    stepBack();
+                    if(PC>=1){
+                        if(saveActionStep.size()>1){
+                            saveActionStep.remove(PC-1);
+                        }
+                        stepBack();
+                    }else{
+                        System.out.println("tu ne peux pas step back");
+                    }
                 }else if (command.equals("step back for")){
-                    System.out.print("Nombre de step back > ");
+                    System.out.print("Nombre de step back maximum "+PC+" > ");
                     command = reader.readLine();
-                    stepBack = ligneActuelle - Integer.parseInt(command);
-                    System.out.println("step back"+stepBack);
-                    stepBack();
+                    if(PC >=Integer.parseInt(command)){
+                        for(int i =0; i<Integer.parseInt(command);i++){
+                            saveActionStep.remove(saveActionStep.size()-1);
+                            PC--;
+                        }
+                        stepBack();
+                    }else{
+                        System.out.println("tu ne peux pas step back");
+                    }
                 }else{
+                    if(command.equals("step over") || command.equals("step")){
+                        if(!event.toString().contains("java")){
+                            System.out.println(event);
+                            saveActionStep.add(ligneActuelle);
+                            PC++;
+                        }
+
+                    }
                     reconnue =  commandManager.executeCommand(vm, event, command);
                 }
 
@@ -154,6 +168,7 @@ public class ScriptableDebugger {
     private void stepBack() throws AbsentInformationException {
         saveBreakpoints();
         askForStepBack = true;
+        PC = PC-1;
         //ajouter de gerer qu'on ne sort pas des index prévus
         attachTo(JDISimpleDebuggee.class);
     }
