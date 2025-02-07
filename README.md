@@ -14,4 +14,28 @@ Ces commandes sont gérées par le CommandeManager. Il permet de rediriger le de
 
 * **Main** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
 * **IHM** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
-* **Step_back** -> Pour exécuter le projet, il faut lancer le main de la classe "".
+* **Step_back** -> Pour exécuter le projet, il faut lancer le main de la classe "JDISimpleDebuger".
+## Desciption fonctionnement step back 
+
+## Utilisation des commandes 
+Liste des commandes possible à taper dans le terminal :
+"step"
+"step over"
+"continue"
+"frame"
+"temporaries"
+"stack"
+"receiver"
+"sender"
+"receiver variables"
+"method"
+"arguments"
+"print var"
+"break"
+"break point" -> liste des breaks points
+"break once"
+"break on count"
+"break before method call"
+"step back"
+"step back for"
+
